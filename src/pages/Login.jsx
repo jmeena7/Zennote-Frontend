@@ -14,6 +14,7 @@ const Login = () => {
   const [showPass, setShowPass] = useState(false);
   const [loading, setLoading] = useState(false);
 
+  // ✅ Use env variable for API URL
   const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5000";
 
   const handleSubmit = async (e) => {
@@ -27,10 +28,12 @@ const Login = () => {
     setLoading(true);
 
     try {
-      const res = await axios.post(`${API_URL}/api/auth/login`, {
-        email,
-        password,
-      });
+      // ✅ Make axios call with proper headers for CORS
+      const res = await axios.post(
+        `${API_URL}/api/auth/login`,
+        { email, password },
+        { headers: { "Content-Type": "application/json" }, withCredentials: true }
+      );
 
       const { user, token } = res.data;
 

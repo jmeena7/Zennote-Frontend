@@ -17,7 +17,7 @@ const Register = () => {
 
   const [loading, setLoading] = useState(false);
 
-  // ✅ Dynamic API URL
+  // ✅ Use environment variable for backend URL
   const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5000";
 
   const handleChange = (e) => {
@@ -35,8 +35,15 @@ const Register = () => {
     try {
       setLoading(true);
 
-      // ✅ Axios POST to dynamic URL
-      const res = await axios.post(`${API_URL}/api/auth/createuser`, formData);
+      // ✅ Axios POST with headers and credentials for CORS
+      const res = await axios.post(
+        `${API_URL}/api/auth/createuser`,
+        formData,
+        {
+          headers: { "Content-Type": "application/json" },
+          withCredentials: true
+        }
+      );
 
       // ✅ Store credentials in redux
       dispatch(setCredentials(res.data));
