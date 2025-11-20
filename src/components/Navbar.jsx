@@ -6,14 +6,22 @@ import { useNavigate } from 'react-router-dom';
 const Navbar = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { user, token } = useSelector(state => state.auth);
+
+  // ❌ user removed — only token rakhte hain
+  const { token } = useSelector(state => state.auth);
 
   // ✅ Restore user from localStorage on refresh
   useEffect(() => {
     const storedUser = localStorage.getItem('user');
     const storedToken = localStorage.getItem('token');
+
     if (storedUser && storedToken && !token) {
-      dispatch(setCredentials({ user: JSON.parse(storedUser), token: storedToken }));
+      dispatch(
+        setCredentials({
+          user: JSON.parse(storedUser),
+          token: storedToken
+        })
+      );
     }
   }, [dispatch, token]);
 
@@ -26,7 +34,7 @@ const Navbar = () => {
 
   return (
     <div className="sticky top-0 z-50">
-      {/* 🌌 Dashboard Theme Matching Navbar without bottom border */}
+      {/* 🌌 Dashboard Theme Matching Navbar */}
       <div
         className="
           backdrop-blur-xl bg-purple-900/70
@@ -45,10 +53,8 @@ const Navbar = () => {
           <span className="text-white">Note</span>
         </div>
 
-        {/* User Info + Logout */}
+        {/* Logout Button */}
         <div className="flex items-center gap-4">
-
-          {/* Logout Button */}
           <button
             onClick={handleLogout}
             className="
