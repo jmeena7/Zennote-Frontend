@@ -2,7 +2,7 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 
 // Base URL
-const BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+const BASE_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:5000';
 const API_URL = `${BASE_URL}/api/notes`;
 
 // 🔁 Fetch Notes
