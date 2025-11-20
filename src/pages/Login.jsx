@@ -14,8 +14,9 @@ const Login = () => {
   const [showPass, setShowPass] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  // ✅ Use env variable for API URL
-  const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5000";
+  const backend = process.env.REACT_APP_BACKEND_URL;
+
+  const API_URL = backend || "http://localhost:5000";
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -28,19 +29,18 @@ const Login = () => {
     setLoading(true);
 
     try {
-      // ✅ Make axios call with proper headers for CORS
       const res = await axios.post(
         `${API_URL}/api/auth/login`,
         { email, password },
-        { headers: { "Content-Type": "application/json" }, withCredentials: true }
+        {
+          headers: { "Content-Type": "application/json" },
+          withCredentials: true,
+        }
       );
 
       const { user, token } = res.data;
 
-      // ✅ Store token in localStorage
       localStorage.setItem("token", token);
-
-      // ✅ Update redux state
       dispatch(setCredentials({ user, token }));
 
       toast.success("✅ Logged in successfully!");
@@ -56,55 +56,65 @@ const Login = () => {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100 px-4">
-      <div className="bg-white shadow-lg rounded-xl p-8 max-w-md w-full">
-        <h2 className="text-2xl font-bold mb-6 text-center text-indigo-600">
-          Login to Zennote
+    <div className="min-h-screen flex items-center justify-center px-4 bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500 dark:from-gray-900 dark:via-gray-800 dark:to-black transition">
+      
+      {/* Glass Card */}
+      <div className="backdrop-blur-xl bg-white/20 dark:bg-white/10 border border-white/30 shadow-2xl rounded-2xl p-8 w-full max-w-md transform transition-all hover:scale-[1.02] hover:shadow-indigo-500/40">
+        
+        <h2 className="text-3xl font-bold mb-6 text-center text-white drop-shadow-md">
+          Welcome Back
         </h2>
 
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} className="space-y-5">
+          
           {/* Email */}
-          <div className="mb-4">
-            <label className="block text-sm font-medium mb-1">Email</label>
+          <div>
+            <label className="text-white text-sm font-medium">Email</label>
             <input
               type="email"
               value={email}
+              autoComplete="email"
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring focus:ring-indigo-300"
               placeholder="Enter your email"
+              className="w-full mt-1 px-4 py-2 rounded-lg bg-white/40 text-black placeholder-gray-700 
+              focus:outline-none focus:ring-4 focus:ring-indigo-300 backdrop-blur-sm"
               required
             />
           </div>
 
           {/* Password */}
-          <div className="mb-6">
-            <label className="block text-sm font-medium mb-1">Password</label>
-            <div className="relative">
+          <div>
+            <label className="text-white text-sm font-medium">Password</label>
+            <div className="relative mt-1">
               <input
                 type={showPass ? "text" : "password"}
                 value={password}
+                autoComplete="current-password"
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring focus:ring-indigo-300"
                 placeholder="Enter your password"
+                className="w-full px-4 py-2 rounded-lg bg-white/40 text-black placeholder-gray-700 
+                focus:outline-none focus:ring-4 focus:ring-indigo-300 backdrop-blur-sm"
                 required
               />
               <span
                 onClick={() => setShowPass(!showPass)}
-                className="absolute right-3 top-2.5 cursor-pointer text-sm text-gray-500"
+                className="absolute right-3 top-2.5 cursor-pointer text-white text-lg"
               >
                 {showPass ? "🙈" : "👁️"}
               </span>
             </div>
           </div>
 
-          {/* Button */}
+          {/* Login Button */}
           <button
             type="submit"
             disabled={loading}
-            className={`w-full py-2 rounded-md transition text-white font-medium ${
+            className={`w-full py-2 text-white font-semibold rounded-lg 
+            transition-all shadow-lg shadow-black/30
+            ${
               loading
                 ? "bg-gray-400 cursor-not-allowed"
-                : "bg-indigo-600 hover:bg-indigo-700"
+                : "bg-indigo-600 hover:bg-indigo-700 hover:shadow-xl"
             }`}
           >
             {loading ? "Logging in..." : "Login"}
@@ -112,9 +122,12 @@ const Login = () => {
         </form>
 
         {/* Register Link */}
-        <p className="mt-4 text-sm text-center">
+        <p className="mt-5 text-center text-white text-sm">
           Don’t have an account?{" "}
-          <Link to="/register" className="text-indigo-600 hover:underline">
+          <Link
+            to="/register"
+            className="font-semibold underline hover:text-yellow-300 transition"
+          >
             Register
           </Link>
         </p>

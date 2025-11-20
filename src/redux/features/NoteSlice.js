@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 
-// ✅ Base URL from environment variable
+// Base URL
 const BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 const API_URL = `${BASE_URL}/api/notes`;
 
@@ -17,7 +17,7 @@ export const fetchNotes = createAsyncThunk('notes/fetchNotes', async (_, thunkAP
       headers: { 'auth-token': token }
     });
 
-    return res.data;
+    return res.data; // { success, notes }
   } catch (err) {
     return thunkAPI.rejectWithValue(err.response?.data?.error || 'Failed to fetch notes');
   }
@@ -27,13 +27,12 @@ export const fetchNotes = createAsyncThunk('notes/fetchNotes', async (_, thunkAP
 export const addNote = createAsyncThunk('notes/addNote', async ({ note }, thunkAPI) => {
   try {
     const token = thunkAPI.getState().auth.token || localStorage.getItem('token');
-    if (!token) return thunkAPI.rejectWithValue('Token not found');
 
     const res = await axios.post(API_URL, note, {
       headers: { 'auth-token': token }
     });
 
-    return res.data;
+    return res.data; // { success, note }
   } catch (err) {
     return thunkAPI.rejectWithValue(err.response?.data?.error || 'Failed to add note');
   }
@@ -43,13 +42,12 @@ export const addNote = createAsyncThunk('notes/addNote', async ({ note }, thunkA
 export const updateNote = createAsyncThunk('notes/updateNote', async ({ id, updatedData }, thunkAPI) => {
   try {
     const token = thunkAPI.getState().auth.token || localStorage.getItem('token');
-    if (!token) return thunkAPI.rejectWithValue('Token not found');
 
     const res = await axios.put(`${API_URL}/${id}`, updatedData, {
       headers: { 'auth-token': token }
     });
 
-    return res.data;
+    return res.data; // { success, note }
   } catch (err) {
     return thunkAPI.rejectWithValue(err.response?.data?.error || 'Failed to update note');
   }
@@ -59,7 +57,6 @@ export const updateNote = createAsyncThunk('notes/updateNote', async ({ id, upda
 export const deleteNote = createAsyncThunk('notes/deleteNote', async (id, thunkAPI) => {
   try {
     const token = thunkAPI.getState().auth.token || localStorage.getItem('token');
-    if (!token) return thunkAPI.rejectWithValue('Token not found');
 
     await axios.delete(`${API_URL}/${id}`, {
       headers: { 'auth-token': token }
@@ -81,13 +78,14 @@ const noteSlice = createSlice({
   reducers: {},
   extraReducers: (builder) => {
     builder
-      // Fetch Notes
+
+      // ⭐ Fetch Notes
       .addCase(fetchNotes.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
       .addCase(fetchNotes.fulfilled, (state, action) => {
-        state.notes = action.payload;
+        state.notes = action.payload.notes || [];   // FIXED
         state.loading = false;
       })
       .addCase(fetchNotes.rejected, (state, action) => {
@@ -95,13 +93,13 @@ const noteSlice = createSlice({
         state.error = action.payload;
       })
 
-      // Add Note
+      // ⭐ Add Note
       .addCase(addNote.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
       .addCase(addNote.fulfilled, (state, action) => {
-        state.notes.push(action.payload);
+        state.notes.push(action.payload.note);   // FIXED
         state.loading = false;
       })
       .addCase(addNote.rejected, (state, action) => {
@@ -109,14 +107,15 @@ const noteSlice = createSlice({
         state.error = action.payload;
       })
 
-      // Update Note
+      // ⭐ Update Note
       .addCase(updateNote.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
       .addCase(updateNote.fulfilled, (state, action) => {
-        const index = state.notes.findIndex(n => n._id === action.payload._id);
-        if (index !== -1) state.notes[index] = action.payload;
+        const updatedNote = action.payload.note;  // FIXED
+        const index = state.notes.findIndex(n => n._id === updatedNote._id);
+        if (index !== -1) state.notes[index] = updatedNote;
         state.loading = false;
       })
       .addCase(updateNote.rejected, (state, action) => {
@@ -124,7 +123,7 @@ const noteSlice = createSlice({
         state.error = action.payload;
       })
 
-      // Delete Note
+      // ⭐ Delete Note
       .addCase(deleteNote.pending, (state) => {
         state.loading = true;
         state.error = null;
